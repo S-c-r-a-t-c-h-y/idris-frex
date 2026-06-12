@@ -26,7 +26,7 @@ CalcWith a (|~ x) = a.equivalence.reflexive x
 CalcWith a ((~~) der (z ... step)) = a.equivalence.transitive _ _ _
     (CalcWith a der) step
 
--- Smart constructors
+-- Smart constructorsSemigroup
 public export
 (..<) : {a : Setoid} -> (y : U a) -> {x : U a} ->
     a.equivalence.relation y x -> Step a x y

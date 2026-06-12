@@ -32,7 +32,7 @@ additiveNotation : {sig : Signature} -> (neutral : OpWithArity sig 0) -> (produc
 additiveNotation {sig} neutral product = MkAdditive1 (call neutral) (call product)
 
 ||| Metaprogramming: the type of an equation parameterised by
-||| operations of the given arity vecotr
+||| operations of the given arity vector
 public export
 EqSpec : (sig : Signature) -> (arities : Vect n Nat) ->  Type
 EqSpec sig [] = Equation sig

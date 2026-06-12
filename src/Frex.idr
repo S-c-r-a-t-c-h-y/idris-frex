@@ -20,6 +20,7 @@ import public Frex.Frex
 import public Frex.Frex.Construction
 import public Frex.Free.Construction.ByFrex
 import public Frex.Lemma
+import public Frex.DistributiveCombination
 
 import public Data.Fun.Nary
 

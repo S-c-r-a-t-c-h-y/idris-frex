@@ -9,6 +9,7 @@ modules = Frex
         , Frex.Axiom
         , Frex.Lemma
         , Frex.Model
+        , Frex.DistributiveCombination
         , Frex.Powers
         , Frex.Powers.Definition
         , Frex.Powers.Abstract
@@ -63,6 +64,16 @@ modules = Frex
         , Frexlet.Monoid.Involutive.Frex
         , Frexlet.Monoid.Involutive.List
         , Frexlet.Monoid.Involutive.Free
+        , Frexlet.Semigroup
+        , Frexlet.Semigroup.Theory
+        , Frexlet.Semigroup.Frex
+        , Frexlet.Semigroup.Frex.Structure
+        , Frexlet.Semigroup.Frex.Properties
+        , Frexlet.Semigroup.Frex.Construction
+        , Frexlet.Semigroup.Nat
+        , Frexlet.Semigroup.List
+        , Frexlet.Semigroup.Pair
+        , Frexlet.Semigroup.Commutative.Theory
         -- Should move to contrib
         , Data.Either.Extra
         , Data.Finite
@@ -79,6 +90,7 @@ modules = Frex
         , Data.Setoid.Vect.Functional
         , Data.Setoid.Vect.Inductive
         , Data.Setoid.List
+        , Data.Setoid.List1
         , Data.Unit
         , Data.Vect.Extra1
         , Syntax.PreorderReasoning.Setoid
