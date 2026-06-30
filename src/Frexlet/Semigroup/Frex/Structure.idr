@@ -357,10 +357,10 @@ FrexAlgebraStructure sg s Product = (++) {sg}
 public export
 FrexStructure : (sg : Semigroup) -> (s : Setoid) -> SemigroupStructure
 FrexStructure sg s = MkSetoidAlgebra
-  { algebra = MkAlgebra (FrexCarrier sg s) (FrexAlgebraStructure sg s)
+  { algebra     = MkAlgebra (FrexCarrier sg s) (FrexAlgebraStructure sg s)
   , equivalence = (MonSetoid s (cast sg)).equivalence
-  , congruence = \case
-      MkOp Product => \ [is1,js1],[is2,js2],prf =>
+  , congruence  = \case
+      MkOp Product => \ [is1,js1],[is2,js2],prf => 
           AppendHomomorphism sg s (is1,js1) (is2,js2) (MkAnd (prf 0) (prf 1))
   }
 

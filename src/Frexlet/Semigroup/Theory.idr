@@ -23,23 +23,15 @@ SemigroupTheory = MkPresentation Theory.Signature
                                  Theory.Axiom $ \case
     Associativity => associativity         Product
 
-
-test : let (*) = call {sig = Signature} Product in usage ((Done 0) * ((Done 1) * (Done 2))) = [1, 1, 1]
-test = Refl
-
+public export
 SemigroupAffine : AffinePresentation SemigroupTheory
 SemigroupAffine = 
-  let (*) = call {sig = Signature} Product in
-  let lhs_affine : AffineTerm {n = 3} ((Done 0) * ((Done 1) * (Done 2)))
-      lhs_affine = [(lteReflectsLTE 1 1 ?h), (lteReflectsLTE 1 1 Refl), (lteReflectsLTE 1 1 Refl)]
-  in
   MkAffinePresentation $ \case 
   Associativity =>
-   MkAffineEq
-    { lhsAffine = ?lhs_affine
-    , rhsAffine = ?rhs_affine
-    } 
-
+    MkAffineEq
+      { lhsAffine = [lte1 1, lte1 1, lte1 1]
+      , rhsAffine = [lte1 1, lte1 1, lte1 1]
+      } 
 
 public export
 SemigroupStructure : Type

@@ -7,6 +7,7 @@ import Frexlet.Semigroup.Theory
 import Frexlet.Semigroup.Frex.Structure
 
 import Data.List1
+import Data.List1.Properties
 
 import Data.Setoid.List1
 
@@ -15,24 +16,10 @@ import Data.Setoid.List1
 
 ------------------------- prependVars lemmas -------------------------
 public export
-appendMiddleAssoc :
-  (s : Setoid) ->
-  (xs, ys, zs : List (U s)) ->
-  (y : U s) ->
-  s.ListEquality
-    (xs ++ (y :: (ys ++ zs)))
-    ((xs ++ (y :: ys)) ++ zs)
-appendMiddleAssoc s [] ys zs y =
-  s.ListEqualityReflexive _
-appendMiddleAssoc s (x :: xs) ys zs y =
-  (::) (s.equivalence.reflexive x)
-       (appendMiddleAssoc s xs ys zs y)
-
-public export
 List1appendAssociative : (s : Setoid) -> (xs, ys, zs : List1 (U s)) ->
   s.List1Equality (xs ++ (ys ++ zs)) ((xs ++ ys) ++ zs)
-List1appendAssociative s (x ::: xs) (y ::: ys) zs = 
-  s.equivalence.reflexive x ::: appendMiddleAssoc s xs _ _ _
+List1appendAssociative s xs ys zs =
+  s.List1EqualityReflexiveEqual _ _ (appendAssociative xs ys zs)
 
 public export
 prependVarsCong : {sg : Semigroup} -> {pen : Setoid} ->

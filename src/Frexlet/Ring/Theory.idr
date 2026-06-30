@@ -33,7 +33,7 @@ data Axiom
 
 public export
 RingTheory : Presentation
-RingTheory = MkPresentation Theory.Signature Theory.Axiom \case
+RingTheory = MkPresentation Theory.Signature Theory.Axiom $ \case
     SumLftNeutrality    => lftNeutrality SNeutral Sum
     SumCommutativity    => commutativity Sum
     SumAssociativity    => associativity Sum
@@ -116,7 +116,7 @@ Show Axiom where
   show ProdLftNeutrality    = "Multiplicative left neutrality"
   show ProdRgtNeutrality    = "Multiplicative right neutrality"
   show ProdAssociativity    = "Multiplicative associativity"
-  show ProdLftAnnihilation = "Left zero"
-  show ProdRgtAnnihilation = "Right zero"
+  show ProdLftAnnihilation  = "Left zero"
+  show ProdRgtAnnihilation  = "Right zero"
   show LftDistributivity    = "Left distributivity"
   show RgtDistributivity    = "Right distributivity"

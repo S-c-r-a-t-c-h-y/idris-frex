@@ -1,0 +1,4 @@
+1/9: Building Semrng (Semrng.idr)
+2/9: Building Semiring (Semiring.idr)
+Main> ok
+Main> Bye for now!

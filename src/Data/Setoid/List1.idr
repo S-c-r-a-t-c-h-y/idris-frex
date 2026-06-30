@@ -12,10 +12,15 @@ namespace Relation
   data (.List1Equality) : (a : Setoid) -> Rel (List1 $ U a) where
     (:::) : (hdEq : a.equivalence.relation x y) -> (tlEq : a.ListEquality xs ys) ->
           a.List1Equality (x ::: xs) (y ::: ys)
-
+          
 public export
 (.List1EqualityReflexive) : (a : Setoid) -> (xs : List1 $ U a) -> a.List1Equality xs xs
 a.List1EqualityReflexive (x ::: xs) = a.equivalence.reflexive x ::: a.ListEqualityReflexive xs
+
+public export
+(.List1EqualityReflexiveEqual) : (a : Setoid) -> (xs, ys : List1 $ U a) ->
+  (prf : xs = ys) -> a.List1Equality xs ys
+a.List1EqualityReflexiveEqual xs xs Refl = a.List1EqualityReflexive xs
 
 public export
 (.List1EqualitySymmetric) : (a : Setoid) -> (xs,ys : List1 $ U a) -> (prf : a.List1Equality xs ys) ->

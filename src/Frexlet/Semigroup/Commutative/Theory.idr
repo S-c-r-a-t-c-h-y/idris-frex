@@ -4,15 +4,13 @@ module Frexlet.Semigroup.Commutative.Theory
 import Frex
 import Frex.Algebra
 
-import Syntax.PreorderReasoning
-import Syntax.PreorderReasoning.Generic
--- import Syntax.PreorderReasoning.Setoid
+import Syntax.PreorderReasoning.Setoid
 
 import public Frexlet.Semigroup
 
 %default total
 
-private infixl 9 .*.
+private infixl 9 .*., :*:
 
 public export
 data Axiom
@@ -27,6 +25,10 @@ CommutativeSemigroupTheory = MkPresentation Theory.Signature Commutative.Theory.
 
 
 public export
+CommutativeSemigroupStructure : Type
+CommutativeSemigroupStructure = SetoidAlgebra Signature
+
+public export
 CommutativeSemigroup : Type
 CommutativeSemigroup = Model CommutativeSemigroupTheory
 
@@ -36,18 +38,21 @@ commutativity : (a : CommutativeSemigroup) -> (x, y, z, w : U a) ->
   a.rel
     ((x .*. z) .*. (y .*. w))
     ((x .*. y) .*. (z .*. w))
--- commutativity a x y z w = 
---   let (.*.) = a.sem Product in
---   CalcWith @{cast a} $
---   |~ ((x .*. z) .*. (y .*. w))
---   ~~ (x .*. (z .*. (y .*. w))) ... (a.validate (Sem Associativity) [_, _, _])
---   ~~ (x .*. ((z .*. y) .*. w)) ... (a.validate (Sem Associativity) [_, _, _])
---   ~~ (x .*. ((y .*. z) .*. w)) ... (a.validate (Commutativity) [_, _])
---   ~~ (x .*. (y .*. (z .*. w))) ... (a.validate (Sem Associativity) [_, _, _])
---   ~~ ((x .*. y) .*. (z .*. w)) ... (a.validate (Sem Associativity) [_, _, _])
+commutativity a x y z w = 
+  let (.*.) : U a -> U a -> U a
+      (.*.) = a.sem Product
+      (:*:) = call {sig = Signature} Product
+  in
+  CalcWith (cast a) $
+  |~ ((x .*. z) .*. (y .*. w))
+  ~~ (x .*. (z .*. (y .*. w))) ..< (a.validate (Sem Associativity) [_, _, _])
+  ~~ (x .*. ((z .*. y) .*. w)) ... (a.cong 1 (Sta _ :*: Dyn 0) [_] [_] [a.validate (Sem Associativity) [_, _, _]])
+  ~~ (x .*. ((y .*. z) .*. w)) ... (a.cong 1 (Sta _ :*: (Dyn 0 :*: Sta _)) [_] [_] [a.validate (Commutativity) [_, _]])
+  ~~ (x .*. (y .*. (z .*. w))) ..< (a.cong 1 (Sta _ :*: Dyn 0) [_] [_] [a.validate (Sem Associativity) [_, _, _]])
+  ~~ ((x .*. y) .*. (z .*. w)) ... (a.validate (Sem Associativity) [_, _, _])
 
 public export
-CommutativeSemigroupCommutative : commutativeTheory CommutativeSemigroupTheory
+CommutativeSemigroupCommutative : CommutativeTheory CommutativeSemigroupTheory
 CommutativeSemigroupCommutative Product Product m env = 
   commutativity m (env 0) (env 1) (env 2) (env 3)
 

@@ -229,7 +229,7 @@ bindTerm : {0 sig : Signature} -> {0 x : Type} -> {auto a : Algebra sig}
   -> (U a)
 
 public export total
-bindTerms : {0 sig : Signature} -> {0x : Type} -> {auto a : Algebra sig}
+bindTerms : {0 sig : Signature} -> {0 x : Type} -> {auto a : Algebra sig}
   -> (ts : Vect n (Term sig x)) -> (env : x -> U a)
   -> Vect n (U a)
 

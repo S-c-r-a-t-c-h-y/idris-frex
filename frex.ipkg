@@ -24,6 +24,11 @@ modules = Frex
         , Frex.Free.Construction.Idris
         , Frex.Free.Construction.IdrisMonoid
         , Frex.Free.Construction.ByFrex
+        , Frex.DistributiveCombination
+        , Frex.DistributiveCombination.Theory
+        , Frex.DistributiveCombination.Structure
+        , Frex.DistributiveCombination.Properties
+        , Frex.DistributiveCombination.Construction
         , Frex.Frex
         , Frex.Frex.Construction
         , Notation
@@ -70,10 +75,29 @@ modules = Frex
         , Frexlet.Semigroup.Frex.Structure
         , Frexlet.Semigroup.Frex.Properties
         , Frexlet.Semigroup.Frex.Construction
+        , Frexlet.Semigroup.Free
         , Frexlet.Semigroup.Nat
         , Frexlet.Semigroup.List
         , Frexlet.Semigroup.Pair
+        , Frexlet.Semigroup.Commutative
         , Frexlet.Semigroup.Commutative.Theory
+        , Frexlet.Semigroup.Commutative.Notation.Core
+        , Frexlet.Semigroup.Commutative.Dirac
+        , Frexlet.Semigroup.Commutative.Free
+        , Frexlet.Group
+        , Frexlet.Group.Theory
+        , Frexlet.Group.Notation
+        , Frexlet.Group.Notation.Multiplicative
+        , Frexlet.Group.Properties
+        , Frexlet.Group.Free
+        , Frexlet.Group.Free.Structure
+        , Frexlet.Group.Free.Properties
+        , Frexlet.Group.Abelian
+        , Frexlet.Group.Abelian.Theory
+        , Frexlet.Group.Abelian.IntInd
+        , Frexlet.Group.Abelian.Notation.Core
+        , Frexlet.Group.Abelian.Dirac
+        , Frexlet.Group.Abelian.Free
         -- Should move to contrib
         , Data.Either.Extra
         , Data.Finite

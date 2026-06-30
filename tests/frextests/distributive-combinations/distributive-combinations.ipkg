@@ -1,0 +1,5 @@
+package distributive-combinations
+
+depends = contrib, frex
+
+main = DistributiveCombinations
