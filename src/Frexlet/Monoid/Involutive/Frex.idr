@@ -347,7 +347,7 @@ ExtenderHomomorphism a s other =
         , Var   = otherIExt.MonoidExtension.Var .
                   bid
         }
-      {- So the lef and right halves of the next two diagram give us
+      {- So the left and right halves of the next two diagram give us
          extension morphism: AuxFrexExtension a s ~> presExt
 
                                   h.H

@@ -1,4 +1,11 @@
 1/9: Building Semrng (Semrng.idr)
-2/9: Building Semiring (Semiring.idr)
+2/9: Building Semirng (Semirng.idr)
+3/9: Building Semring (Semring.idr)
+4/9: Building Semiring (Semiring.idr)
+5/9: Building CommutativeSemiring (CommutativeSemiring.idr)
+6/9: Building Rng (Rng.idr)
+7/9: Building Ring (Ring.idr)
+8/9: Building CommutativeRing (CommutativeRing.idr)
+9/9: Building DistributiveCombinations (DistributiveCombinations.idr)
 Main> ok
 Main> Bye for now!

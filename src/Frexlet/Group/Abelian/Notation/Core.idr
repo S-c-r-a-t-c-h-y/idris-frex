@@ -2,7 +2,7 @@ module Frexlet.Group.Abelian.Notation.Core
 
 import Frex
 import Frexlet.Group.Abelian.Theory
-import Frexlet.Group.Abelian.IntInd
+import Frexlet.Group.Abelian.NZInt
 
 import public Notation
 import public Notation.Action
@@ -32,28 +32,28 @@ public export
     (x :: xs) => x .+. a.sum xs
 
 public export
-mult : (a : AbelianGroup) -> IntInd -> U a -> U a
-mult a (Pos k) x = a.sum $ replicate k x
+mult : (a : AbelianGroup) -> NZInt -> U a -> U a
+mult a (Pos k) x = a.sum $ replicate (S k) x
 mult a (Neg k) x = a.sum $ replicate (S k) (a.sem Inverse x)
 
 public export
-NatActionData : (a : AbelianGroup) -> ActionData IntInd (U a)
+NatActionData : (a : AbelianGroup) -> ActionData NZInt (U a)
 NatActionData a = mult a :: cast a
 
 public export
-NatAction1 : (a : AbelianGroup) -> Action1 IntInd (U a)
+NatAction1 : (a : AbelianGroup) -> Action1 NZInt (U a)
 NatAction1 a = cast (NatActionData a)
 
 public export
-NatAction2 : (a : AbelianGroup) -> Action2 IntInd (U a)
+NatAction2 : (a : AbelianGroup) -> Action2 NZInt (U a)
 NatAction2 a = cast (NatActionData a)
 
 %hint
 public export
-notation2 : Action2 IntInd (Term Signature (a `Either` (Fin n)))
+notation2 : Action2 NZInt (Term Signature (a `Either` (Fin n)))
 notation2 = NatAction2 (F _ (irrelevantCast (a `Either` (Fin n))))
 
 %hint
 public export
-notation1 : Action1 IntInd (Term Signature (a `Either` (Fin n)))
+notation1 : Action1 NZInt (Term Signature (a `Either` (Fin n)))
 notation1 = NatAction1 (F _ (irrelevantCast (a `Either` (Fin n))))

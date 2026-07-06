@@ -16,4 +16,4 @@ import public Frexlet.Monoid.Commutative.Free
 
 public export
 Frex : Frexlet {pres = CommutativeMonoidTheory}
-Frex a = CoproductsAndFreeFrex CoproductCospan Frexlet.Monoid.Commutative.Free.Free a
+Frex a = CoproductsAndFreeFrex CoproductCospan Frexlet.Monoid.Commutative.Free.Finite.Free a

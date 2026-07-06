@@ -62,6 +62,10 @@ public export
 Plus : Op Signature
 Plus = MkOp (Mono Product)
 
+public export
+Zero : Op Signature
+Zero = MkOp (Mono Neutral)
+
 
 public export
 interchange : (a : AbelianGroup) -> (x, y, z, w : U a) ->

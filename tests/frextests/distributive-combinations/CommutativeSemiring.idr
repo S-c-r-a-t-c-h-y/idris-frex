@@ -1,38 +1,36 @@
 ||| Test for the distributive combination of monoids over commutative monoids
-module Semiring
+module CommutativeSemiring
 
 import Frex
-import Frexlet.Monoid
 import Frexlet.Monoid.Commutative
+import Frexlet.Monoid.Commutative.Notation.Core
 
-import Frexlet.Monoid.Frex.Order
-
-%default total
+import Data.Order
 
 ------------------------ DEFINING THE COMBINATION ------------------------
 
-SemiringOver : (n : Nat) -> (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin n)
-SemiringOver n =
-  let freeM : Free Theory.MonoidTheory (cast $ Fin n)
-      freeM = Monoid.Free.FreeMonoidOver $ cast $ Fin n
+CommutativeSemiringOver : (n : Nat) -> (DistributiveCombinationTheory CommutativeMonoidTheory CommutativeMonoidTheory) `ModelOver` (cast $ Fin n)
+CommutativeSemiringOver n =
+  let freeM : Free CommutativeMonoidTheory (cast $ Fin n)
+      freeM = Finite.Free
       x_set : OrdSetoid
       x_set = MkOrdSetoid
         { setoid = cast freeM.Data.Model
         , decOrd = MkStrictOrd
-          { lt = LtUltList LtFin LtUnit
+          { lt = LtVect LT
           , ltDec = believe_me "ltDec"
           , ltIsOrder = believe_me "ltIsOrder"
-          , compare = compareUltList compareFin compareUnit
+          , compare = compareVect compareNat
           }
         }
   in
   DistributiveCombination' 
     {additive = Theory.CommutativeMonoidTheory} 
-    {multiplicative = Theory.MonoidTheory} 
+    {multiplicative = Theory.CommutativeMonoidTheory} 
     (cast $ Fin n) freeM (Free x_set)
 
-TestSemiring : (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin 3)
-TestSemiring = SemiringOver 3
+TestSemiring : (DistributiveCombinationTheory CommutativeMonoidTheory CommutativeMonoidTheory) `ModelOver` (cast $ Fin 3)
+TestSemiring = CommutativeSemiringOver 3
 
 X0, X1, X2 : U TestSemiring .Model
 X0 = TestSemiring .Env.H 0
@@ -73,6 +71,9 @@ addRgtNeutrality = refl (X0 .+. O1)
 
 mulAssoc : (X0 .*. (X1 .*. X2)) =-= ((X0 .*. X1) .*. X2)
 mulAssoc = refl (X0 .*. (X1 .*. X2))
+
+mulComm : (X0 .*. X1) =-= (X1 .*. X0)
+mulComm = refl (X0 .*. X1)
 
 mulLftNeutrality : (I1 .*. X0) =-= X0
 mulLftNeutrality = refl (I1 .*. X0)

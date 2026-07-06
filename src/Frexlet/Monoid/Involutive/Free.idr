@@ -31,7 +31,7 @@ Initial =
   { Data = model
   , UP = IsFree
     { Exists = \other =>
-        let h : ?
+        let h : trivial.Data ~> (castOther other)
             h = trivial.UP.Exists (castOther other)
         in MkHomomorphism
           { H = MkSetoidHomomorphism
@@ -39,9 +39,8 @@ Initial =
                 , preserves = \case
                     MkOp (Mono op)  => h.H.preserves (MkOp op)
                     MkOp Involution => \[x] =>
-                      let %hint notation : ?
+                      let %hint notation : InvMult1 (U other.Model)
                           notation = other.Model.Notation1
-                          q := I1
                       in CalcWith (cast other.Model) $
                       |~ h.H.H.H x
                       ~~ I1      .=.(Refl)
@@ -50,7 +49,7 @@ Initial =
           , preserves = h.preserves
           }
     , Unique = \other, h1, h2 =>
-      let monoid : ?
+      let monoid : MonoidTheory `ModelOver` (cast Void)
           monoid = MkModelOver (cast {to = Monoid} other.Model) other.Env
           prime : (model ~> other) -> trivial.Data ~> monoid
           prime h = MkHomomorphism
@@ -69,3 +68,7 @@ Initial =
 public export
 FreeInvolutiveMonoidOver : (n : Nat) -> Free InvolutiveMonoidTheory (cast $ Fin n)
 FreeInvolutiveMonoidOver n = ByFrex Initial (Involutive.Frex.Frex _)
+
+public export
+FreeInvolutiveMonoid : (s : Setoid) -> Free InvolutiveMonoidTheory s
+FreeInvolutiveMonoid s = ByFrex Initial (Involutive.Frex.Frex _)

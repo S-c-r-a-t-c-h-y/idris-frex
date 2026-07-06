@@ -1,63 +1,63 @@
-module Frexlet.Group.Abelian.Free
+||| An inductive construction of the free commutative monoid over an
+||| ordered setoid.
+module Frexlet.Monoid.Commutative.Free.Ordered
 
 import Frex
 
-import Notation
-import Notation.Action
+import Frexlet.Monoid.Commutative.Theory
+import Frexlet.Monoid.Commutative.Notation.Core
 
-import Frexlet.Group.Abelian.Theory
-import Frexlet.Group.Abelian.Notation.Core
-import public Frexlet.Group.Abelian.NZInt
+import Data.Order
 
-import public Data.Order
+import Data.Setoid
+import Data.Setoid.List
+import Data.Setoid.Pair
 
 %default total
 %hide Control.Relation.Rel
 
 public export
-data Sorted : (lt : Rel a) -> List (a, NZInt) -> Type where
+data Sorted : (lt : Rel a) -> List (a, Nat) -> Type where
   SortedNil    : {lt : Data.Relation.Rel a} -> Sorted lt []
-  SortedSingle : {lt : Rel a} -> {x : a} -> {nx : NZInt} -> Sorted lt [(x, nx)]
-  SortedCons   : {lt : Rel a} -> {x, y : a} -> {nx, ny : NZInt} -> {ys : List (a, NZInt)} -> 
+  SortedSingle : {lt : Rel a} -> {x : a} -> {nx : Nat} -> Sorted lt [(x, nx)]
+  SortedCons   : {lt : Rel a} -> {x, y : a} -> {nx, ny : Nat} -> {ys : List (a, Nat)} -> 
                 lt x y -> Sorted lt ((y, ny) :: ys) -> Sorted lt ((x, nx) :: (y, ny) :: ys)
   
+
 public export
 record FreeCarrier (x_set : OrdSetoid) where
   constructor MkFreeCarrier
-  coeffs : List (U x_set, NZInt)
+  coeffs : List (U x_set, Nat)
   sorted : Sorted x_set.decOrd.lt coeffs
 
 public export
-NZIntSetoid : Setoid
-NZIntSetoid = cast NZInt
+NatSetoid : Setoid
+NatSetoid = cast Nat
   
 public export
 FreeSetoid : (x_set : OrdSetoid) -> Setoid
 FreeSetoid x_set = MkSetoid
   { U = FreeCarrier x_set
   , equivalence  = MkEquivalence
-    { relation   = \xs, ys => (Pair x_set.setoid NZIntSetoid).ListEquality xs.coeffs ys.coeffs
-    , reflexive  = \xs => (Pair x_set.setoid NZIntSetoid).ListEqualityReflexive xs.coeffs
-    , symmetric  = \_,_, prf => (Pair x_set.setoid NZIntSetoid).ListEqualitySymmetric _ _ prf
-    , transitive = \_,_,_,prf1,prf2 => (Pair x_set.setoid NZIntSetoid).ListEqualityTransitive _ _ _ prf1 prf2
+    { relation   = \xs, ys => (Pair x_set.setoid NatSetoid).ListEquality xs.coeffs ys.coeffs
+    , reflexive  = \xs => (Pair x_set.setoid NatSetoid).ListEqualityReflexive xs.coeffs
+    , symmetric  = \_,_, prf => (Pair x_set.setoid NatSetoid).ListEqualitySymmetric _ _ prf
+    , transitive = \_,_,_,prf1,prf2 => (Pair x_set.setoid NatSetoid).ListEqualityTransitive _ _ _ prf1 prf2
     }
   }
 
+
 public export
-AddList : {x_set : OrdSetoid} -> (xs, ys : List (U x_set, NZInt)) -> List (U x_set, NZInt)
+AddList : {x_set : OrdSetoid} -> (xs, ys : List (U x_set, Nat)) -> List (U x_set, Nat)
 AddList [] ys = ys
 AddList xs [] = xs
 AddList ((x1, nx1) :: []) ((y1, ny1) :: []) with (x_set.decOrd.compare x1 y1)
   _ | Lt _ = [(x1, nx1), (y1, ny1)]
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing = []
-    _ | Just k = [(x1, k)]
+  _ | Eq _ = [(x1, nx1 + ny1)]
   _ | Gt _ = [(y1, ny1), (x1, nx1)]
 AddList ((x1, nx1) :: []) ((y1, ny1) :: ((y2, ny2) :: ys)) with (x_set.decOrd.compare x1 y1)
   _ | Lt _ = (x1, nx1) :: (y1, ny1) :: (y2, ny2) :: ys
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing = []
-    _ | Just k = (x1, k) :: (y2, ny2) :: ys
+  _ | Eq _ = (x1, nx1 + ny1) :: (y2, ny2) :: ys
   _ | Gt _ with (assert_total $ AddList [(x1, nx1)] ((y2, ny2) :: ys)) 
     _ | [] = [] -- NB: impossible
     _ | (h :: hs) = (y1, ny1) :: h :: hs 
@@ -65,9 +65,7 @@ AddList ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: []) with (x_set.decOrd.co
   _ | Lt _ with (assert_total $ AddList ((x2, nx2) :: xs) [(y1, ny1)]) 
     _ | [] = [] -- NB: impossible
     _ | (h :: hs) = (x1, nx1) :: h :: hs 
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing = []
-    _ | Just k = (x1, k) :: (x2, nx2) :: xs
+  _ | Eq _ = (x1, nx1 + ny1) :: (x2, nx2) :: xs
   _ | Gt _ = (y1, ny1) :: (x1, nx1) :: (x2, nx2) :: xs
 AddList ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: ((y2, ny2) :: ys)) with (x_set.decOrd.compare x1 y1)
   _ | Lt _ with (assert_total $ AddList ((x2, nx2) :: xs) ((y1, ny1) :: (y2, ny2) :: ys))
@@ -75,9 +73,7 @@ AddList ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: ((y2, ny2) :: ys)) with (
     _ | (h :: hs) = (x1, nx1) :: h :: hs 
   _ | Eq _ with (assert_total $ AddList ((x2, nx2) :: xs) ((y2, ny2) :: ys))
     _ | [] = [] -- NB: impossible
-    _ | (h :: hs) with (plus nx1 ny1)
-      _ | Nothing = []
-      _ | Just k = (x1, k) :: h :: hs 
+    _ | (h :: hs) = (x1, nx1 + nx2) :: h :: hs 
   _ | Gt _ with (assert_total $ AddList ((x1, nx1) :: (x2, nx2) :: xs) ((y2, ny2) :: ys))
     _ | [] = [] -- NB: impossible
     _ | (h :: hs) = (y1, ny1) :: h :: hs
@@ -88,43 +84,35 @@ eqHead : {x, y : _} -> {nx, ny : _} -> {xs, ys : List _} ->
 eqHead Refl = Refl
 
 public export
-AddListHead : {x_set : OrdSetoid} -> (x1, y1 : U x_set) -> (nx1, ny1 : NZInt) ->
-  (xs, ys : List (U x_set, NZInt)) ->
-  {h : U x_set} -> {nh : NZInt} -> {hs : List (U x_set, NZInt)} ->
+AddListHead : {x_set : OrdSetoid} -> (x1, y1 : U x_set) -> (nx1, ny1 : Nat) ->
+  (xs, ys : List (U x_set, Nat)) ->
+  {h : U x_set} -> {nh : Nat} -> {hs : List (U x_set, Nat)} ->
   (prf : AddList {x_set} ((x1, nx1) :: xs) ((y1, ny1) :: ys) = (h, nh) :: hs) ->
   Either (h = x1) (h = y1)
 AddListHead x1 y1 nx1 ny1 [] [] prf with (x_set.decOrd.compare x1 y1)
   _ | Lt _ = Left $ sym $ eqHead prf
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing impossible
-    _ | Just k = Left $ sym $ eqHead prf
+  _ | Eq _ = Left $ sym $ eqHead prf
   _ | Gt _ = Right $ sym $ eqHead prf
 AddListHead x1 y1 nx1 ny1 [] ((y2, ny2) :: ys) prf with (x_set.decOrd.compare x1 y1)
   _ | Lt _ = Left $ sym $ eqHead prf
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing impossible
-    _ | Just k = Left $ sym $ eqHead prf
+  _ | Eq _ = Left $ sym $ eqHead prf
   _ | Gt _ with (AddList ((x1, nx1) :: []) ((y2, ny2) :: ys))
     _ | _ :: _ = Right $ sym $ eqHead prf
 AddListHead x1 y1 nx1 ny1 ((x2, nx2) :: xs) [] prf with (x_set.decOrd.compare x1 y1)
   _ | Lt _ with (AddList ((x2, nx2) :: xs) ((y1, ny1) :: []))
     _ | _ :: _ = Left $ sym $ eqHead prf
-  _ | Eq _ with (plus nx1 ny1)
-    _ | Nothing impossible
-    _ | Just k = Left $ sym $ eqHead prf
+  _ | Eq _ = Left $ sym $ eqHead prf
   _ | Gt _ = Right $ sym $ eqHead prf
 AddListHead x1 y1 nx1 ny1 ((x2, nx2) :: xs) ((y2, ny2) :: ys) prf with (x_set.decOrd.compare x1 y1)
   _ | Lt _ with (AddList ((x2, nx2) :: xs) ((y1, ny1) :: (y2, ny2) :: ys))
     _ | _ :: _ = Left $ sym $ eqHead prf
   _ | Eq _ with (AddList ((x2, nx2) :: xs) ((y2, ny2) :: ys))
-    _ | _ :: _ with (plus nx1 ny1)
-      _ | Nothing impossible
-      _ | Just k = Left $ sym $ eqHead prf
+    _ | _ :: _ = Left $ sym $ eqHead prf
   _ | Gt _ with (AddList ((x1, nx1) :: (x2, nx2) :: xs) ((y2, ny2) :: ys))
     _ | _ :: _ = Right $ sym $ eqHead prf
 
 public export
-AddListSorted : {x_set : OrdSetoid} -> (xs, ys : List (U x_set, NZInt)) ->
+AddListSorted : {x_set : OrdSetoid} -> (xs, ys : List (U x_set, Nat)) ->
   (prf_xs : Sorted x_set.decOrd.lt xs) ->
   (prf_ys : Sorted x_set.decOrd.lt ys) ->
   Sorted x_set.decOrd.lt (AddList {x_set} xs ys)
@@ -132,16 +120,12 @@ AddListSorted [] ys prf_xs prf_ys = prf_ys
 AddListSorted (x :: xs) [] prf_xs prf_ys = prf_xs
 AddListSorted ((x1, nx1) :: []) ((y1, ny1) :: []) prf_xs prf_ys with (x_set.decOrd.compare x1 y1)
   _ | Lt prf = SortedCons prf prf_ys
-  _ | Eq prf with (plus nx1 ny1)
-    _ | Nothing = SortedNil
-    _ | Just _ = SortedSingle
+  _ | Eq prf = SortedSingle
   _ | Gt prf = SortedCons prf prf_xs
 AddListSorted ((x1, nx1) :: []) ((y1, ny1) :: ((y2, ny2) :: ys)) prf_xs prf_ys with (x_set.decOrd.compare x1 y1)
   _ | Lt prf = SortedCons prf prf_ys
   _ | Eq prf with (prf_ys)
-    _ | SortedCons prf' prf_tail with (plus nx1 ny1)
-      _ | Nothing = SortedNil
-      _ | Just _ = SortedCons (rewrite prf in prf') prf_tail
+    _ | SortedCons prf' prf_tail = SortedCons (rewrite prf in prf') prf_tail
   _ | Gt prf with (AddList [(x1, nx1)] ((y2, ny2) :: ys)) proof prf_ih
     _ | [] = SortedNil -- NB: impossible
     _ | (h, nh) :: hs with (AddListHead x1 y2 nx1 ny2 [] ys prf_ih) | (prf_ys)
@@ -158,9 +142,7 @@ AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: []) prf_xs prf_ys w
       _ | Right eq | SortedCons prf' prf_tail = SortedCons (rewrite eq in prf) $
           rewrite sym prf_ih in assert_total $ AddListSorted ((x2, nx2) :: xs) ((y1, ny1) :: []) prf_tail prf_ys
   _ | Eq prf with (prf_xs)
-    _ | SortedCons prf' prf_tail with (plus nx1 ny1)
-      _ | Nothing = SortedNil
-      _ | Just _ = SortedCons prf' prf_tail
+    _ | SortedCons prf' prf_tail = SortedCons prf' prf_tail
   _ | Gt prf = SortedCons prf prf_xs
 AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: ((y2, ny2) :: ys)) prf_xs prf_ys with (x_set.decOrd.compare x1 y1)
   _ | Lt prf with (AddList ((x2, nx2) :: xs) ((y1, ny1) :: ((y2, ny2) :: ys))) proof prf_ih
@@ -174,15 +156,11 @@ AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: ((y2, ny2) :: ys)) 
     _ | [] = SortedNil -- NB: impossible
     _ | ((h, nh) :: hs) with (AddListHead x2 y2 nx2 ny2 xs ys prf_ih)
       _ | Left eq with (prf_xs) | (prf_ys)
-        _ | SortedCons prf1 prf_tail1 | SortedCons prf2 prf_tail2 with (plus nx1 ny1)
-          _ | Nothing = SortedNil
-          _ | Just _ = SortedCons (rewrite eq in prf1) $
-                       rewrite sym prf_ih in assert_total $ AddListSorted ((x2, nx2) :: xs) ((y2, ny2) :: ys) prf_tail1 prf_tail2
+        _ | SortedCons prf1 prf_tail1 | SortedCons prf2 prf_tail2 = SortedCons (rewrite eq in prf1) $
+          rewrite sym prf_ih in assert_total $ AddListSorted ((x2, nx2) :: xs) ((y2, ny2) :: ys) prf_tail1 prf_tail2
       _ | Right eq with (prf_xs) | (prf_ys)
-        _ | SortedCons prf1 prf_tail1 | SortedCons prf2 prf_tail2 with (plus nx1 ny1)
-          _ | Nothing = SortedNil
-          _ | Just _ = SortedCons (rewrite eq in rewrite prf in prf2) $
-                      rewrite sym prf_ih in assert_total $ AddListSorted ((x2, nx2) :: xs) ((y2, ny2) :: ys) prf_tail1 prf_tail2
+        _ | SortedCons prf1 prf_tail1 | SortedCons prf2 prf_tail2 = SortedCons (rewrite eq in rewrite prf in prf2) $
+          rewrite sym prf_ih in assert_total $ AddListSorted ((x2, nx2) :: xs) ((y2, ny2) :: ys) prf_tail1 prf_tail2
   _ | Gt prf with (AddList ((x1, nx1) :: ((x2, nx2) :: xs)) ((y2, ny2) :: ys)) proof prf_ih
     _ | [] = SortedNil -- NB: impossible
     _ | ((h, nh) :: hs) with (AddListHead x1 y2 nx1 ny2 ((x2, nx2) :: xs) ys prf_ih) | (prf_ys)
@@ -190,6 +168,7 @@ AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y1, ny1) :: ((y2, ny2) :: ys)) 
           rewrite sym prf_ih in assert_total $ AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y2, ny2) :: ys) prf_xs prf_tail
       _ | Right eq | SortedCons prf' prf_tail = SortedCons (rewrite eq in prf') $
           rewrite sym prf_ih in assert_total $ AddListSorted ((x1, nx1) :: ((x2, nx2) :: xs)) ((y2, ny2) :: ys) prf_xs prf_tail
+
 
 public export
 Add : {x_set : OrdSetoid} -> FreeCarrier x_set -> FreeCarrier x_set -> FreeCarrier x_set
@@ -201,46 +180,24 @@ Neutral : {x_set : OrdSetoid} -> FreeCarrier x_set
 Neutral = MkFreeCarrier [] SortedNil
 
 public export
-InverseList : {x_set : OrdSetoid} -> (xs : List (U x_set, NZInt)) -> List (U x_set, NZInt)
-InverseList [] = []
-InverseList ((x, nx) :: xs) = (x, neg nx) :: InverseList xs
-
-public export
-InverseListSorted : {x_set : OrdSetoid} -> (xs : List (U x_set, NZInt)) ->
-  (prf_xs : Sorted x_set.decOrd.lt xs) ->
-  Sorted x_set.decOrd.lt (InverseList {x_set} xs)
-InverseListSorted [] SortedNil = SortedNil
-InverseListSorted ((x, nx) :: []) SortedSingle = SortedSingle
-InverseListSorted ((x, nx) :: ((y, ny) :: ys)) (SortedCons prf prf_tail) = 
-  SortedCons prf $ InverseListSorted ((y, ny) :: ys) prf_tail
-
-public export
-Inverse : {x_set : OrdSetoid} -> FreeCarrier x_set -> FreeCarrier x_set
-Inverse (MkFreeCarrier xs prf_xs) =
-  MkFreeCarrier (InverseList xs) (InverseListSorted xs prf_xs)
-
-public export
 AddHomomorphism : {x_set : OrdSetoid} ->
   SetoidHomomorphism (FreeSetoid x_set `Pair` FreeSetoid x_set) (FreeSetoid x_set) (Prelude.uncurry Add)
 AddHomomorphism x y z = believe_me "AddHomomorphism"
 
 
 public export
-FreeAbelianGroupStructureOver : (x_set : OrdSetoid) -> GroupStructure
-FreeAbelianGroupStructureOver x_set = MkSetoidAlgebra
+FreeCommutativeMonoidStructureOver : (x_set : OrdSetoid) -> MonoidStructure
+FreeCommutativeMonoidStructureOver x_set = MkSetoidAlgebra
   { algebra = MkAlgebra (FreeCarrier x_set) $ \case
-    Mono op => case op of
-      Product => Add
-      Neutral => Neutral
-    Inverse => Inverse
+    Product => Add
+    Neutral => Neutral
   , equivalence = (FreeSetoid x_set).equivalence
   , congruence = \case
-      MkOp (Mono op) => case op of
-        Product => \ [xs1,ys1],[xs2,ys2],prf => 
+      MkOp Product => \ [xs1,ys1],[xs2,ys2],prf => 
           AddHomomorphism (xs1,ys1) (xs2,ys2) (MkAnd (prf 0) (prf 1))
-        Neutral => \[],[],prf => (FreeSetoid x_set).equivalence.reflexive _
-      MkOp Inverse => \[xs],[ys],prf => believe_me "InverseHomomorphism"
+      MkOp Neutral => \[],[],prf => (FreeSetoid x_set).equivalence.reflexive _
   }
+
 
 public export
 AddAssociative : {x_set : OrdSetoid} -> (xs, ys, zs : FreeCarrier x_set) ->
@@ -263,7 +220,7 @@ LftNeutrality : {x_set : OrdSetoid} -> (xs : FreeCarrier x_set) ->
     (Add Neutral xs)
     xs
 LftNeutrality (MkFreeCarrier coeffs _) = 
-  (Pair x_set.setoid NZIntSetoid).ListEqualityReflexive _
+  (Pair x_set.setoid NatSetoid).ListEqualityReflexive _
 
 public export
 RgtNeutrality : {x_set : OrdSetoid} -> (xs : FreeCarrier x_set) ->
@@ -271,51 +228,36 @@ RgtNeutrality : {x_set : OrdSetoid} -> (xs : FreeCarrier x_set) ->
     (Add xs Neutral)
     xs
 RgtNeutrality (MkFreeCarrier [] _) =
-  (Pair x_set.setoid NZIntSetoid).ListEqualityReflexive _
+  (Pair x_set.setoid NatSetoid).ListEqualityReflexive _
 RgtNeutrality (MkFreeCarrier (x :: xs) _) =
-  (Pair x_set.setoid NZIntSetoid).ListEqualityReflexive _
-
-public export
-LftInverse : {x_set : OrdSetoid} -> (xs : FreeCarrier x_set) ->
-  (FreeSetoid x_set).equivalence.relation
-    (Add (Inverse xs) xs)
-    Neutral
-LftInverse xs = believe_me "LftInverse"
-
-public export
-RgtInverse : {x_set : OrdSetoid} -> (xs : FreeCarrier x_set) ->
-  (FreeSetoid x_set).equivalence.relation
-    (Add xs (Inverse xs))
-    Neutral
-RgtInverse xs = believe_me "RgtInverse"
+  (Pair x_set.setoid NatSetoid).ListEqualityReflexive _
 
 public export
 FreeValidatesAxioms : (x_set : OrdSetoid) -> 
-  Validates AbelianGroupTheory (FreeAbelianGroupStructureOver x_set)
-FreeValidatesAxioms _ (Grp $ Mon Associativity) env = AddAssociative (env 0) (env 1) (env 2)
-FreeValidatesAxioms _ (Grp $ Mon LftNeutrality) env = LftNeutrality (env 0)
-FreeValidatesAxioms _ (Grp $ Mon RgtNeutrality) env = RgtNeutrality (env 0)
-FreeValidatesAxioms _ (Grp $ LftInverse) env = LftInverse (env 0)
-FreeValidatesAxioms _ (Grp $ RgtInverse) env = RgtInverse (env 0)
+  Validates CommutativeMonoidTheory (FreeCommutativeMonoidStructureOver x_set)
+FreeValidatesAxioms _ (Mon Associativity) env = AddAssociative (env 0) (env 1) (env 2)
+FreeValidatesAxioms _ (Mon LftNeutrality) env = LftNeutrality (env 0)
+FreeValidatesAxioms _ (Mon RgtNeutrality) env = RgtNeutrality (env 0)
 FreeValidatesAxioms _ Commutativity env = AddCommutative (env 0) (env 1)
 
+
 public export
-Model : (x_set : OrdSetoid) -> AbelianGroup
+Model : (x_set : OrdSetoid) -> CommutativeMonoid
 Model x_set = MkModel
-  { Algebra = FreeAbelianGroupStructureOver x_set
+  { Algebra = FreeCommutativeMonoidStructureOver x_set
   , Validate = FreeValidatesAxioms x_set
   }
 
 public export
 unit : (x_set : OrdSetoid) -> x_set.setoid ~> FreeSetoid x_set
 unit x_set = MkSetoidHomomorphism
-  { H = \y => MkFreeCarrier ((y, Pos 0) :: []) SortedSingle
+  { H = \y => MkFreeCarrier ((y, 0) :: []) SortedSingle
   , homomorphic = \x, y, prf => MkAnd prf Refl :: Nil
   }
 
 public export
-FreeAbelianGroupOver : (x_set : OrdSetoid) -> AbelianGroupTheory `ModelOver` (cast x_set)
-FreeAbelianGroupOver x_set = MkModelOver
+FreeCommutativeMonoidOver : (x_set : OrdSetoid) -> CommutativeMonoidTheory `ModelOver` (cast x_set)
+FreeCommutativeMonoidOver x_set = MkModelOver
   { Model = Model x_set
   , Env = unit x_set
   }
@@ -324,66 +266,58 @@ FreeAbelianGroupOver x_set = MkModelOver
 
 
 public export
-FreeExtenderFunction : {x_set : OrdSetoid} -> ExtenderFunction (FreeAbelianGroupOver x_set)
+FreeExtenderFunction : {x_set : OrdSetoid} -> ExtenderFunction (FreeCommutativeMonoidOver x_set)
 FreeExtenderFunction other (MkFreeCarrier xs _) = 
-  other.Model.sum $ map (\(x, nx) => mult other.Model nx (other.Env.H x)) (fromList xs)
+  other.Model.sum $ map (\(x, nx) => mult other.Model (S nx) (other.Env.H x)) (fromList xs)
 
 public export
-FreeExtenderSetoidHomomorphism : {x_set : OrdSetoid} -> ExtenderSetoidHomomorphism (FreeAbelianGroupOver x_set)
+FreeExtenderSetoidHomomorphism : {x_set : OrdSetoid} -> ExtenderSetoidHomomorphism (FreeCommutativeMonoidOver x_set)
 FreeExtenderSetoidHomomorphism other = MkSetoidHomomorphism
   { H = FreeExtenderFunction other
   , homomorphic = \xs,ys,prf => believe_me "FreeExtenderSetoidHomomorphism"
   }
 
 public export
-extenderPreservesPlus : {x_set : OrdSetoid} -> (other : AbelianGroupTheory `ModelOver` (cast x_set)) ->
+extenderPreservesPlus : {x_set : OrdSetoid} -> (other : CommutativeMonoidTheory `ModelOver` (cast x_set)) ->
   Preserves (Model x_set).Algebra other.Model.Algebra (FreeExtenderFunction other) Plus
 extenderPreservesPlus other xs = believe_me "extenderPreservesPlus"
 
 public export
-extenderPreservesZero : {x_set : OrdSetoid} -> (other : AbelianGroupTheory `ModelOver` (cast x_set)) ->
+extenderPreservesZero : {x_set : OrdSetoid} -> (other : CommutativeMonoidTheory `ModelOver` (cast x_set)) ->
   Preserves (Model x_set).Algebra other.Model.Algebra (FreeExtenderFunction other) Zero
 extenderPreservesZero other [] = other.Model.equivalence.reflexive _
 
 public export
-extenderPreservesInverse : {x_set : OrdSetoid} -> (other : AbelianGroupTheory `ModelOver` (cast x_set)) ->
-  Preserves (Model x_set).Algebra other.Model.Algebra (FreeExtenderFunction other) (MkOp Inverse)
-extenderPreservesInverse other xs = believe_me "extenderPreservesInverse"
-
-
-public export
-FreeExtenderHomomorphism : {x_set : OrdSetoid} -> ExtenderAlgebraHomomorphism (FreeAbelianGroupOver x_set)
+FreeExtenderHomomorphism : {x_set : OrdSetoid} -> ExtenderAlgebraHomomorphism (FreeCommutativeMonoidOver x_set)
 FreeExtenderHomomorphism other = MkSetoidHomomorphism
   { H = FreeExtenderSetoidHomomorphism other
   , preserves = \case
-      MkOp (Mono op) => case op of
-        Product => extenderPreservesPlus other
-        Neutral => extenderPreservesZero other
-      MkOp Inverse => extenderPreservesInverse other
+      MkOp Product => extenderPreservesPlus other
+      MkOp Neutral => extenderPreservesZero other
   }
 
 public export
-extenderIsMorphism : {x_set : OrdSetoid} -> (other : AbelianGroupTheory `ModelOver` (cast x_set)) ->
-  PreservesEnv (FreeAbelianGroupOver x_set) other (FreeExtenderSetoidHomomorphism other)
+extenderIsMorphism : {x_set : OrdSetoid} -> (other : CommutativeMonoidTheory `ModelOver` (cast x_set)) ->
+  PreservesEnv (FreeCommutativeMonoidOver x_set) other (FreeExtenderSetoidHomomorphism other)
 extenderIsMorphism other x = believe_me "extenderIsMorphism"
 
 
 public export
-Extender : {x_set : OrdSetoid} -> Extender (FreeAbelianGroupOver x_set)
+Extender : {x_set : OrdSetoid} -> Extender (FreeCommutativeMonoidOver x_set)
 Extender other = MkHomomorphism
   { H = FreeExtenderHomomorphism other
   , preserves = extenderIsMorphism other
   } 
 
 public export
-uniqueExtender : {x_set : OrdSetoid} -> (other : AbelianGroupTheory `ModelOver` (cast x_set)) ->
-  (extend : FreeAbelianGroupOver x_set ~> other) -> (xs : U (Model x_set)) ->
+uniqueExtender : {x_set : OrdSetoid} -> (other : CommutativeMonoidTheory `ModelOver` (cast x_set)) ->
+  (extend : FreeCommutativeMonoidOver x_set ~> other) -> (xs : U (Model x_set)) ->
   other.Model.rel (extend.H.H.H xs)
                   (FreeExtenderFunction other xs)
 uniqueExtender other extend xs = believe_me "uniqueExtender"
 
 public export
-Uniqueness : {x_set : OrdSetoid} -> Uniqueness (FreeAbelianGroupOver x_set)
+Uniqueness : {x_set : OrdSetoid} -> Uniqueness (FreeCommutativeMonoidOver x_set)
 Uniqueness other extend1 extend2 xs =
   CalcWith (cast other.Model) $
   |~ extend1.H.H.H xs
@@ -391,9 +325,9 @@ Uniqueness other extend1 extend2 xs =
   ~~ extend2.H.H.H xs              ..<(uniqueExtender other extend2 xs)
 
 public export
-Free : (x_set : OrdSetoid) -> Free AbelianGroupTheory (cast x_set)
+Free : (x_set : OrdSetoid) -> Free CommutativeMonoidTheory (cast x_set)
 Free x_set = MkFree
-  { Data = FreeAbelianGroupOver x_set
+  { Data = FreeCommutativeMonoidOver x_set
   , UP   = IsFree
     { Exists = Extender
     , Unique = Uniqueness

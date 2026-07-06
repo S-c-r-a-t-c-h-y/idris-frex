@@ -1,38 +1,36 @@
-||| Test for the distributive combination of monoids over commutative monoids
-module Semiring
+module InvolutiveSemiring
 
 import Frex
-import Frexlet.Monoid
 import Frexlet.Monoid.Commutative
+import Frexlet.Monoid.Involutive
 
 import Frexlet.Monoid.Frex.Order
 
-%default total
+----------------------- DEFINING THE COMBINATION ------------------------
 
------------------------- DEFINING THE COMBINATION ------------------------
-
-SemiringOver : (n : Nat) -> (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin n)
-SemiringOver n =
-  let freeM : Free Theory.MonoidTheory (cast $ Fin n)
-      freeM = Monoid.Free.FreeMonoidOver $ cast $ Fin n
+public export
+InvSemiringOver : (n : Nat) -> (DistributiveCombinationTheory CommutativeMonoidTheory InvolutiveMonoidTheory) `ModelOver` (cast $ Fin n)
+InvSemiringOver n =
+  let freeM : Free Theory.InvolutiveMonoidTheory (cast $ Fin n)
+      freeM = FreeInvolutiveMonoidOver n
       x_set : OrdSetoid
       x_set = MkOrdSetoid
         { setoid = cast freeM.Data.Model
         , decOrd = MkStrictOrd
-          { lt = LtUltList LtFin LtUnit
+          { lt = LtUltList (LexicographicLT LtBool LtFin) LtUnit
           , ltDec = believe_me "ltDec"
           , ltIsOrder = believe_me "ltIsOrder"
-          , compare = compareUltList compareFin compareUnit
+          , compare = compareUltList (compareLexicographic compareBool compareFin) compareUnit
           }
         }
   in
   DistributiveCombination' 
     {additive = Theory.CommutativeMonoidTheory} 
-    {multiplicative = Theory.MonoidTheory} 
-    (cast $ Fin n) freeM (Free x_set)
+    {multiplicative = Theory.InvolutiveMonoidTheory} 
+    (cast $ Fin n) freeM (Ordered.Free x_set)
 
-TestSemiring : (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin 3)
-TestSemiring = SemiringOver 3
+TestSemiring : (DistributiveCombinationTheory CommutativeMonoidTheory InvolutiveMonoidTheory) `ModelOver` (cast $ Fin 3)
+TestSemiring = InvSemiringOver 3
 
 X0, X1, X2 : U TestSemiring .Model
 X0 = TestSemiring .Env.H 0
@@ -43,13 +41,16 @@ X2 = TestSemiring .Env.H 2
 (.+.) = TestSemiring .Model.sem (Left Product)
 
 (.*.) : U TestSemiring .Model -> U TestSemiring .Model -> U TestSemiring .Model
-(.*.) = TestSemiring .Model.sem (Right Product)
+(.*.) = TestSemiring .Model.sem (Right (Mono Product))
+
+inv : U TestSemiring .Model -> U TestSemiring .Model
+inv = TestSemiring .Model.sem (Right Involution)
 
 O1 : U TestSemiring .Model
 O1 = TestSemiring .Model.sem (Left Neutral)
 
 I1 : U TestSemiring .Model
-I1 = TestSemiring .Model.sem (Right Neutral)
+I1 = TestSemiring .Model.sem (Right (Mono Neutral))
 
 0 (=-=) : U TestSemiring .Model -> U TestSemiring .Model -> Type
 (=-=) term1 term2 = TestSemiring .Model.rel term1 term2
@@ -79,6 +80,12 @@ mulLftNeutrality = refl (I1 .*. X0)
 
 mulRgtNeutrality : (X0 .*. I1) =-= X0
 mulRgtNeutrality = refl (X0 .*. I1)
+
+involutivity : inv (inv X0) =-= X0
+involutivity = refl X0
+
+antidistributivity : inv (X0 .*. X1) =-= inv X1 .*. inv X0
+antidistributivity = refl (inv (X0 .*. X1))
 
 distrLeft : (X0 .*. (X1 .+. X2)) =-= ((X0 .*. X1) .+. (X0 .*. X2))
 distrLeft = refl (X0 .*. (X1 .+. X2))

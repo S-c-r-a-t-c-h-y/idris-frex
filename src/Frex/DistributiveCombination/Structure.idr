@@ -18,15 +18,18 @@ parameters {A : Setoid} {pres : Presentation} {M : Model pres} {free_a : Free pr
 
   --------------------- EXTEND ----------------------
 
+  public export
   extend : (A ~> cast M) -> (free_a .Data .Model ~> M)
   extend f = (free_a .UP .Exists $ MkModelOver M f) .H
 
+  public export
   extend_preserves : (f : A ~> cast M) ->
     (A ~~> cast M) .equivalence .relation
           (((extend f) .H) . (free_a .Data .Env)) 
           f
   extend_preserves f = (free_a .UP .Exists $ MkModelOver M f) .preserves
 
+  public export
   extend_cong : (f, g : A ~> cast M) ->
     (A ~~> cast M) .equivalence .relation f g -> 
     (free_a .Data .Model ~~> M) .equivalence .relation 
@@ -43,6 +46,7 @@ parameters {A : Setoid} {pres : Presentation} {M : Model pres} {free_a : Free pr
 
   --------------------- HELPERS FOR PSI ----------------------
 
+  public export
   section : {k : Nat} -> {f : VectSetoid (S k) A ~> cast M} ->
   U A -> VectSetoid k A ~> cast M
   section x = MkSetoidHomomorphism
@@ -51,17 +55,21 @@ parameters {A : Setoid} {pres : Presentation} {M : Model pres} {free_a : Free pr
     \case FZ => A .equivalence .reflexive _
           FS k => prf k
 
+  public export
   step : {k : Nat} -> {f : VectSetoid (S k) A ~> cast M} ->
   Vect k (U (cast $ free_a .Data .Model)) -> A ~> cast M
 
+  public export
   go : {k : Nat} -> {f : VectSetoid (S k) A ~> cast M} ->
         Vect (S k) (U (cast $ free_a .Data .Model)) -> U (cast M)
 
   --------------------- PSI and PSI_CONG ----------------------
 
+  public export
   psi : {n : Nat} -> (f : VectSetoid n A ~> cast M) ->
     VectSetoid n (cast $ free_a .Data .Model) ~> cast M
   
+  public export
   psi_cong : {n : Nat} -> (f, g : VectSetoid n A ~> cast M) ->
     (VectSetoid n A ~~> cast M).equivalence.relation f g ->
     (VectSetoid n (cast $ free_a .Data .Model) ~~> cast M).equivalence.relation
@@ -101,6 +109,7 @@ parameters {A : Setoid} {pres : Presentation} {M : Model pres} {free_a : Free pr
 
   --------------------- LEMMAS ----------------------
 
+  public export
   psi_extension : {n : Nat} -> (f : VectSetoid n A ~> cast M) ->
     (xs : Vect n (U A)) -> 
     (cast M) .equivalence .relation
@@ -120,55 +129,55 @@ parameters {A : Setoid} {pres : Presentation} {M : Model pres} {free_a : Free pr
     ~~ f.H (x :: xs) .=. (Refl)
 
 
-parameters {presA : Presentation} {presM : Presentation} {X : Setoid} (free_A : (Y : Setoid) -> Free presA Y) (free_M : (Y : Setoid) -> Free presM Y)
+-- parameters {presA : Presentation} {presM : Presentation} {X : Setoid} (free_A : (Y : Setoid) -> Free presA Y) (free_M : (Y : Setoid) -> Free presM Y)
 
-  A0 : presM `ModelOver` X
-  A0 = (free_M X).Data
+--   A0 : presM `ModelOver` X
+--   A0 = (free_M X).Data
 
-  A0carr : Setoid
-  A0carr = cast $ A0 .Model
+--   A0carr : Setoid
+--   A0carr = cast $ A0 .Model
 
-  -----------------------------------------------------------------
+--   -----------------------------------------------------------------
 
-  FA : Free presA A0carr
-  FA = free_A A0carr
+--   FA : Free presA A0carr
+--   FA = free_A A0carr
 
-  FAcarr : Setoid
-  FAcarr = cast $ FA .Data .Model
+--   FAcarr : Setoid
+--   FAcarr = cast $ FA .Data .Model
 
-  M_algebra : SetoidAlgebra (presM .signature)
-  M_algebra = 
-        let psi_app : {n : Nat} -> (f : presM.signature.OpWithArity n) -> VectSetoid n (cast $ FA .Data .Model) ~> (cast $ FA .Data .Model)
-            psi_app f = psi ((FA .Data .Env) . (cast (MkOp f)))
-        in
-        MkSetoidAlgebra
-        { algebra     = MakeAlgebra (U FAcarr) $ \f => (psi_app f.snd) .H
-        , equivalence = FAcarr .equivalence
-        , congruence  = \f => (psi_app f.snd).homomorphic
-        }
+--   M_algebra : SetoidAlgebra (presM .signature)
+--   M_algebra = 
+--         let psi_app : {n : Nat} -> (f : presM.signature.OpWithArity n) -> VectSetoid n (cast $ FA .Data .Model) ~> (cast $ FA .Data .Model)
+--             psi_app f = psi ((FA .Data .Env) . (cast (MkOp f)))
+--         in
+--         MkSetoidAlgebra
+--         { algebra     = MakeAlgebra (U FAcarr) $ \f => (psi_app f.snd) .H
+--         , equivalence = FAcarr .equivalence
+--         , congruence  = \f => (psi_app f.snd).homomorphic
+--         }
 
-  lemma1 : {n : Nat} -> (t : Term (presM .signature) (Fin n)) -> 
-    (env : (Fin n) -> U A0carr) -> FAcarr .equivalence .relation
-      (M_algebra .Sem t ((FA .Data .Env .H) . env))
-      (FA .Data .Env .H $ (A0 .Sem) t env)
-  lemma1 (Done x) env = FAcarr .equivalence .reflexive _
-  lemma1 (Call f xs) env = ?def
-    -- CalcWith (cast M_algebra) $
-    -- |~ M_algebra .Sem (Call f xs) ((FA .Data .Env .H) . env)
-    -- ~~ M_algebra .Sem f (bindTerms {sig = presM .signature} {a = cast M_algebra} xs ((FA .Data .Env .H) . env)) .=. (Refl)
-    -- ~~ M_algebra .Sem f (map (flip M_algebra .Sem ((FA .Data .Env .H) . env)) xs) ... (?prf1)
-    -- ~~ ?eq1 ... (?prf2)
-    -- psi_extension ((FA .Data .Env) . (cast $ MkOp (f .snd))) ?xs
+--   lemma1 : {n : Nat} -> (t : Term (presM .signature) (Fin n)) -> 
+--     (env : (Fin n) -> U A0carr) -> FAcarr .equivalence .relation
+--       (M_algebra .Sem t ((FA .Data .Env .H) . env))
+--       (FA .Data .Env .H $ (A0 .Sem) t env)
+--   lemma1 (Done x) env = FAcarr .equivalence .reflexive _
+--   lemma1 (Call f xs) env = ?def
+--     -- CalcWith (cast M_algebra) $
+--     -- |~ M_algebra .Sem (Call f xs) ((FA .Data .Env .H) . env)
+--     -- ~~ M_algebra .Sem f (bindTerms {sig = presM .signature} {a = cast M_algebra} xs ((FA .Data .Env .H) . env)) .=. (Refl)
+--     -- ~~ M_algebra .Sem f (map (flip M_algebra .Sem ((FA .Data .Env .H) . env)) xs) ... (?prf1)
+--     -- ~~ ?eq1 ... (?prf2)
+--     -- psi_extension ((FA .Data .Env) . (cast $ MkOp (f .snd))) ?xs
 
-  A2 : presM `ModelOver` A0carr
-  A2 =        
-    MkModelOver
-    { Model = MkModel
-      { Algebra  = M_algebra
-      , Validate = \ax, env => ?validates
-      }
-    , Env   = FA .Data .Env
-    }
+--   A2 : presM `ModelOver` A0carr
+--   A2 =        
+--     MkModelOver
+--     { Model = MkModel
+--       { Algebra  = M_algebra
+--       , Validate = \ax, env => ?validates
+--       }
+--     , Env   = FA .Data .Env
+--     }
 
 public export
 DistributiveCombinationStructure' : {additive : Presentation} -> {multiplicative : Presentation} ->

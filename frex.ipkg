@@ -43,6 +43,7 @@ modules = Frex
         , Frexlet.Monoid.Frex.Structure
         , Frexlet.Monoid.Frex.Properties
         , Frexlet.Monoid.Frex.Construction
+        , Frexlet.Monoid.Frex.Order
         , Frexlet.Monoid.Free
         , Frexlet.Monoid.Nat
         , Frexlet.Monoid.List
@@ -59,6 +60,8 @@ modules = Frex
         , Frexlet.Monoid.Commutative.NatSemiLinear.Dirac
         , Frexlet.Monoid.Commutative.Notation.Core
         , Frexlet.Monoid.Commutative.Free
+        , Frexlet.Monoid.Commutative.Free.Finite
+        , Frexlet.Monoid.Commutative.Free.Ordered
         , Frexlet.Monoid.Commutative.Coproduct
         , Frexlet.Monoid.Commutative.Frex
         , Frexlet.Monoid.Involutive
@@ -69,12 +72,14 @@ modules = Frex
         , Frexlet.Monoid.Involutive.Frex
         , Frexlet.Monoid.Involutive.List
         , Frexlet.Monoid.Involutive.Free
+        , Frexlet.Monoid.InvolutiveSemiring
         , Frexlet.Semigroup
         , Frexlet.Semigroup.Theory
         , Frexlet.Semigroup.Frex
         , Frexlet.Semigroup.Frex.Structure
         , Frexlet.Semigroup.Frex.Properties
         , Frexlet.Semigroup.Frex.Construction
+        , Frexlet.Semigroup.Frex.Order
         , Frexlet.Semigroup.Free
         , Frexlet.Semigroup.Nat
         , Frexlet.Semigroup.List
@@ -95,6 +100,7 @@ modules = Frex
         , Frexlet.Group.Abelian
         , Frexlet.Group.Abelian.Theory
         , Frexlet.Group.Abelian.IntInd
+        , Frexlet.Group.Abelian.NZInt
         , Frexlet.Group.Abelian.Notation.Core
         , Frexlet.Group.Abelian.Dirac
         , Frexlet.Group.Abelian.Free
@@ -106,6 +112,7 @@ modules = Frex
         , Data.Relation
         , Data.Relation.Closure.ReflexiveTransitive
         , Data.Relation.Closure.Symmetric
+        , Data.Order
         , Data.Setoid
         , Data.Setoid.Definition
         , Data.Setoid.Either

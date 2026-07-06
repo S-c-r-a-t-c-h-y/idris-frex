@@ -1,9 +1,10 @@
-||| Test for the distributive combination of monoids over commutative monoids
-module Semiring
+||| Test for the distributive combination of monoids over abelian groups
+module Ring
 
 import Frex
 import Frexlet.Monoid
-import Frexlet.Monoid.Commutative
+import Frexlet.Group.Abelian
+import Frexlet.Group.Abelian.Notation.Core
 
 import Frexlet.Monoid.Frex.Order
 
@@ -11,8 +12,8 @@ import Frexlet.Monoid.Frex.Order
 
 ------------------------ DEFINING THE COMBINATION ------------------------
 
-SemiringOver : (n : Nat) -> (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin n)
-SemiringOver n =
+RingOver : (n : Nat) -> (DistributiveCombinationTheory AbelianGroupTheory MonoidTheory) `ModelOver` (cast $ Fin n)
+RingOver n =
   let freeM : Free Theory.MonoidTheory (cast $ Fin n)
       freeM = Monoid.Free.FreeMonoidOver $ cast $ Fin n
       x_set : OrdSetoid
@@ -27,35 +28,38 @@ SemiringOver n =
         }
   in
   DistributiveCombination' 
-    {additive = Theory.CommutativeMonoidTheory} 
+    {additive = Theory.AbelianGroupTheory} 
     {multiplicative = Theory.MonoidTheory} 
     (cast $ Fin n) freeM (Free x_set)
 
-TestSemiring : (DistributiveCombinationTheory CommutativeMonoidTheory MonoidTheory) `ModelOver` (cast $ Fin 3)
-TestSemiring = SemiringOver 3
+TestRing : (DistributiveCombinationTheory AbelianGroupTheory MonoidTheory) `ModelOver` (cast $ Fin 3)
+TestRing = RingOver 3
 
-X0, X1, X2 : U TestSemiring .Model
-X0 = TestSemiring .Env.H 0
-X1 = TestSemiring .Env.H 1
-X2 = TestSemiring .Env.H 2
+X0, X1, X2 : U TestRing .Model
+X0 = TestRing .Env.H 0
+X1 = TestRing .Env.H 1
+X2 = TestRing .Env.H 2
 
-(.+.) : U TestSemiring .Model -> U TestSemiring .Model -> U TestSemiring .Model
-(.+.) = TestSemiring .Model.sem (Left Product)
+(.+.) : U TestRing .Model -> U TestRing .Model -> U TestRing .Model
+(.+.) = TestRing .Model.sem (Left (Mono Product))
 
-(.*.) : U TestSemiring .Model -> U TestSemiring .Model -> U TestSemiring .Model
-(.*.) = TestSemiring .Model.sem (Right Product)
+(.*.) : U TestRing .Model -> U TestRing .Model -> U TestRing .Model
+(.*.) = TestRing .Model.sem (Right Product)
 
-O1 : U TestSemiring .Model
-O1 = TestSemiring .Model.sem (Left Neutral)
+inv : U TestRing .Model -> U TestRing .Model
+inv = TestRing .Model.sem (Left Inverse)
 
-I1 : U TestSemiring .Model
-I1 = TestSemiring .Model.sem (Right Neutral)
+O1 : U TestRing .Model
+O1 = TestRing .Model.sem (Left (Mono Neutral))
 
-0 (=-=) : U TestSemiring .Model -> U TestSemiring .Model -> Type
-(=-=) term1 term2 = TestSemiring .Model.rel term1 term2
+I1 : U TestRing .Model
+I1 = TestRing .Model.sem (Right Neutral)
 
-refl : (x : U TestSemiring .Model) -> x =-= x
-refl x = TestSemiring .Model.equivalence.reflexive x
+0 (=-=) : U TestRing .Model -> U TestRing .Model -> Type
+(=-=) term1 term2 = TestRing .Model.rel term1 term2
+
+refl : (x : U TestRing .Model) -> x =-= x
+refl x = TestRing .Model.equivalence.reflexive x
 
 ------------------------ TESTING ------------------------
 
@@ -70,6 +74,12 @@ addLftNeutrality = refl (O1 .+. X0)
 
 addRgtNeutrality : (X0 .+. O1) =-= X0
 addRgtNeutrality = refl (X0 .+. O1)
+
+addLftInverse : (inv X0 .+. X0) =-= O1
+addLftInverse = refl (inv X0 .+. X0)
+
+addRgtInverse : (X0 .+. inv X0) =-= O1
+addRgtInverse = refl (X0 .+. inv X0)
 
 mulAssoc : (X0 .*. (X1 .*. X2)) =-= ((X0 .*. X1) .*. X2)
 mulAssoc = refl (X0 .*. (X1 .*. X2))
@@ -91,3 +101,10 @@ lftAnnihilation = refl (O1 .*. X0)
 
 rgtAnnihilation : (X0 .*. O1) =-= O1
 rgtAnnihilation = refl (X0 .*. O1)
+
+invProductLeft : (inv X0) .*. X1 =-= inv (X0 .*. X1)
+invProductLeft = refl (inv (X0 .*. X1))
+
+invProductRight : X0 .*. (inv X1) =-= inv (X0 .*. X1)
+invProductRight = refl (inv (X0 .*. X1))
+
